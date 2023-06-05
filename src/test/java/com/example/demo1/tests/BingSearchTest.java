@@ -1,12 +1,13 @@
-package com.example.demo1;
+package com.example.demo1.tests;
 
+import com.example.demo1.pages.MainPage;
+import com.example.demo1.pages.ResultsPage;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -14,9 +15,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainPageTest {
+public class BingSearchTest {
     private WebDriver driver;
 
 
@@ -37,29 +37,35 @@ public class MainPageTest {
     }
 
     @Test
-    public void search() {
+    public void searchResultsTest() {
         String input = "Selenium";
+        MainPage mp = new MainPage(driver);
 
-        WebElement searchField = driver.findElement(By.cssSelector("#sb_form_q"));
-        searchField.sendKeys(input);
-        searchField.submit();
+        mp.sendText(input);
 
+
+        ResultsPage rp = new ResultsPage(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(6));
         wait.until(ExpectedConditions.and(
                 ExpectedConditions.attributeContains(By.cssSelector("h2 > a[href]"), "href", "selenium"),
                 ExpectedConditions.elementToBeClickable(By.cssSelector("h2 > a[href]"))));
-        List<WebElement> results = driver.findElements(By.cssSelector("h2 > a[href]"));
-        clickElement(results,0);
+        rp.clickElement(0);
         ArrayList<String> tabs = new ArrayList<> (driver.getWindowHandles());
         driver.switchTo().window(tabs.get(1));
         String currentUrl = "https://www.selenium.dev/";
 
-        assertEquals(driver.getCurrentUrl() , currentUrl, "вы не перешли на нужную вкладку");
+        assertEquals(driver.getCurrentUrl() , currentUrl, "вы не перешли на нужную ссылку");
 
     }
 
-
-    public void clickElement(List<WebElement> results, int num){
-        results.get(num).click();
+    @Test
+    public void searchFieldTest(){
+        String input = "Selenium";
+        MainPage mp = new MainPage(driver);
+        mp.sendText(input);
+        ResultsPage rp = new ResultsPage(driver);
+        assertEquals(input, rp.getTextFromSearchField(), "текст не совпал");
     }
+
+
 }
